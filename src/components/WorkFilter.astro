@@ -79,4 +79,8 @@ const segments = [
   .meta { margin: 0; font-size: 13px; color: var(--muted); }
   .card h3 { margin: 8px 0 6px; }
   .line { margin: 0; font-size: var(--text-small); line-height: 1.5; }
+  @media (max-width: 520px) {
+    .seg { flex-wrap: nowrap; width: 100%; }
+    .seg button { flex: 1 1 0; min-width: 0; padding: 0 6px; }
+  }
 </style>

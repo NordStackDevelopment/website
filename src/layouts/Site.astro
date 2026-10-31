@@ -28,7 +28,7 @@ const fullTitle = title ? `${title} · NordStack` : 'NordStack';
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <Navbar current={current} />
-    <main id="main">
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />

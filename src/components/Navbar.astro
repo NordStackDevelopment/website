@@ -1,4 +1,8 @@
 ---
+// Main navigation. Wide screens show the links inline; phones get a
+// menu button that opens a side drawer. The drawer is a native <dialog>
+// opened with showModal(), so focus stays inside it, the page behind is
+// inert for screen readers, and Escape closes it.
 interface Props {
   current?: 'projects' | 'builds' | 'photos' | 'about';
 }
@@ -13,31 +17,103 @@ const links = [
 <header>
   <nav aria-label="Main" class="wrap">
     <a href="/" aria-label="NordStack home" class="home">
-      <img src="/brand/nordstack-horizontal-compact-bone.svg" alt="NordStack" height="26" />
+      <img src="/brand/nordstack-horizontal-compact-bone.svg" alt="" height="26" />
     </a>
-    <div class="links">
+    <ul class="links" role="list">
       {links.map((l) => (
-        <a href={l.href} aria-current={current === l.id ? 'page' : undefined}>{l.label}</a>
+        <li><a href={l.href} aria-current={current === l.id ? 'page' : undefined}>{l.label}</a></li>
       ))}
-    </div>
+    </ul>
+    <button type="button" class="menu-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="site-menu" data-menu-open>
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M3 6h16M3 11h16M3 16h16" />
+      </svg>
+      <span>Menu</span>
+    </button>
   </nav>
+
+  <dialog id="site-menu" class="drawer" aria-label="Site menu" data-menu>
+    <div class="drawer-top">
+      <a href="/" class="home"><img src="/brand/nordstack-horizontal-compact-bone.svg" alt="NordStack home" height="24" /></a>
+      <button type="button" class="close-btn" data-menu-close>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4 L14 14 M14 4 L4 14" /></svg>
+        <span>Close</span>
+      </button>
+    </div>
+    <nav aria-label="Main (menu)">
+      <ul role="list">
+        {links.map((l) => (
+          <li><a href={l.href} aria-current={current === l.id ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </dialog>
 </header>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-menu]')!;
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+  const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-menu-close]')!;
+
+  const setExpanded = (v: boolean) => openBtn.setAttribute('aria-expanded', String(v));
+  openBtn.addEventListener('click', () => {
+    dialog.showModal();
+    setExpanded(true);
+    closeBtn.focus();
+  });
+  closeBtn.addEventListener('click', () => dialog.close());
+  // Clicking the dimmed area outside the panel closes it.
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  dialog.addEventListener('close', () => { setExpanded(false); openBtn.focus(); });
+  // If the window grows past the phone layout while open, close the drawer.
+  matchMedia('(min-width: 721px)').addEventListener('change', (e) => { if (e.matches && dialog.open) dialog.close(); });
+</script>
 
 <style>
   header { background: var(--green); }
-  nav {
+  nav.wrap {
     padding-block: 14px;
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-    gap: 12px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px 32px;
   }
   .home { display: flex; align-items: center; min-height: var(--tap); }
   .home img { height: 26px; width: auto; display: block; }
+  ul { list-style: none; margin: 0; padding: 0; }
   .links { display: flex; flex-wrap: wrap; gap: 4px 8px; }
-  .links a {
+  .links a, .drawer a:not(.home) {
     font-family: var(--font-heading); font-weight: 700; font-size: 14px;
     letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
     padding: 0 12px; min-height: var(--tap); display: flex; align-items: center;
     border-bottom: 2px solid transparent;
   }
   .links a[aria-current='page'] { border-bottom-color: var(--burgundy-light); }
+
+  .menu-btn, .close-btn {
+    display: none; align-items: center; gap: 8px;
+    min-height: var(--tap); min-width: var(--tap); padding: 0 14px;
+    background: transparent; color: var(--bone);
+    border: 1px solid rgba(230, 223, 208, 0.4); border-radius: 999px;
+    font-family: var(--font-heading); font-weight: 700; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .close-btn { display: inline-flex; }
+
+  .drawer {
+    margin: 0 0 0 auto; height: 100dvh; max-height: none; width: min(320px, 86vw); max-width: none;
+    padding: 0; border: 0; background: var(--green); color: var(--bone);
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.35);
+  }
+  .drawer[open] { display: flex; flex-direction: column; animation: slide-in 0.2s ease-out; }
+  .drawer::backdrop { background: rgba(15, 14, 12, 0.6); }
+  .drawer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(230, 223, 208, 0.16); }
+  .drawer-top .home img { height: 24px; }
+  .drawer nav { padding: 16px 8px; }
+  .drawer li a { font-size: 17px; min-height: 52px; padding: 0 16px; border-bottom: 0; border-left: 2px solid transparent; }
+  .drawer li a[aria-current='page'] { border-left-color: var(--burgundy-light); }
+  @keyframes slide-in { from { transform: translateX(100%); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .drawer[open] { animation: none; } }
+
+  @media (max-width: 720px) {
+    .links { display: none; }
+    .menu-btn { display: inline-flex; }
+  }
 </style>

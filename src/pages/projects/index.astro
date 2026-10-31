@@ -69,4 +69,8 @@ const segments = [['all', 'All'], ['app', 'Apps'], ['tool', 'Tools'], ['web', 'W
   .shown { margin: 0; font-size: var(--text-meta); color: var(--muted); }
   .cards { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 32px; }
   .empty { color: var(--muted); margin-top: 32px; }
+  @media (max-width: 520px) {
+    .seg { flex-wrap: nowrap; width: 100%; }
+    .seg button { flex: 1 1 0; min-width: 0; padding: 0 6px; }
+  }
 </style>
