@@ -1,0 +1,200 @@
+---
+import Site from '../layouts/Site.astro';
+import Ridge from '../components/Ridge.astro';
+import { getSettings } from '../lib/content';
+import about from '../../sample-data/about.json';
+
+const s = await getSettings();
+const make = [
+  { href: '/projects', title: 'Projects', line: 'Apps, tools, scripts and websites.' },
+  { href: '/builds', title: 'Builds', line: 'Hardware and setups, logged layer by layer.' },
+  { href: '/photos', title: 'Photographs', line: 'Trips and series from up north and beyond.' },
+];
+---
+<Site title="About" current="about" description={about.intro}>
+  <section class="layer-1">
+    <div class="wrap hero">
+      {about.portrait
+        ? <img class="portrait" src={about.portrait} alt="Portrait" />
+        : <div class="ph portrait" role="img" aria-label="Portrait placeholder"></div>}
+      <div class="text">
+        <p class="mono eyebrow">About NordStack</p>
+        <h1>{about.title}</h1>
+        <p class="mono tag">{about.tagline}</p>
+        <p class="lead">{about.intro}</p>
+        <p class="links">
+          <a href="#contact-h">Get in touch</a>
+          <a href={s.github}>GitHub</a>
+          {s.instagram && <a href={s.instagram}>Instagram</a>}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Ridge color="var(--layer-2)" variant={1} />
+  <section class="layer-2" aria-labelledby="story-h">
+    <div class="wrap split">
+      <h2 id="story-h">The story</h2>
+      <div class="story">{about.story.map((p) => <p>{p}</p>)}</div>
+    </div>
+  </section>
+
+  <Ridge color="var(--layer-3)" variant={2} />
+  <section class="layer-3" aria-labelledby="make-h">
+    <div class="wrap band">
+      <h2 id="make-h" class="make-h">What I make</h2>
+      <div class="makes">
+        {make.map((m) => (
+          <a class="make" href={m.href}><span class="h3">{m.title}</span><span class="line">{m.line}</span></a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Ridge color="var(--layer-4)" variant={3} />
+  <section class="layer-4" aria-labelledby="gear-h">
+    <div class="wrap split">
+      <h2 id="gear-h">Gear</h2>
+      <dl>
+        {about.gear.map((g) => <div class="gear"><dt class="mono">{g.label}</dt><dd>{g.value}</dd></div>)}
+      </dl>
+    </div>
+  </section>
+
+  <Ridge color="var(--layer-5)" variant={1} />
+  <section class="layer-5" aria-labelledby="contact-h">
+    <div class="wrap contact">
+      <div class="side">
+        <h2 id="contact-h">Get in touch</h2>
+        <p class="hint">{s.email ? 'Write here, or send an email.' : 'Write here and I’ll reply by email.'}</p>
+        {s.email && <p class="links"><a href={`mailto:${s.email}`}>{s.email}</a></p>}
+        <p class="links"><a href={s.github}>GitHub</a>{s.instagram && <a href={s.instagram}>Instagram</a>}</p>
+      </div>
+      <div class="form-col" data-contact>
+        <div class="sent" role="status" hidden data-sent>
+          <p class="h3">Message sent</p>
+          <p>Thanks. I'll reply to the email you gave.</p>
+          <button type="button" class="btn btn-outline" data-again>Write another</button>
+        </div>
+        <form novalidate data-form>
+          <div class="row">
+            <div class="f"><label for="c-name" class="mono">Name</label><input id="c-name" name="name" class="field" type="text" autocomplete="name" placeholder="Your name" maxlength="200" aria-describedby="e-name" /><p id="e-name" class="err" data-err="name"></p></div>
+            <div class="f"><label for="c-email" class="mono">Email</label><input id="c-email" name="email" class="field" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="e-email" /><p id="e-email" class="err" data-err="email"></p></div>
+          </div>
+          <div class="f"><label for="c-msg" class="mono">Message</label><textarea id="c-msg" name="message" class="field" rows="5" placeholder="What's on your mind?" required maxlength="5000" aria-describedby="e-message"></textarea><p id="e-message" class="err" data-err="message"></p></div>
+          <div class="hp" aria-hidden="true"><label for="c-web">Website</label><input id="c-web" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+          <p class="err form-err" role="alert" data-form-err></p>
+          <button type="submit" class="btn btn-solid">Send message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<script>
+  import { validate, sendMessage, NotConnectedError, type ContactMessage } from '../lib/contact';
+  const root = document.querySelector<HTMLElement>('[data-contact]')!;
+  const form = root.querySelector<HTMLFormElement>('[data-form]')!;
+  const sent = root.querySelector<HTMLElement>('[data-sent]')!;
+  const formErr = root.querySelector<HTMLElement>('[data-form-err]')!;
+  const submit = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+
+  function showErrors(errors: Partial<Record<keyof ContactMessage, string>>) {
+    for (const key of ['name', 'email', 'message'] as const) {
+      const el = form.querySelector<HTMLElement>(`[data-err="${key}"]`)!;
+      const input = form.elements.namedItem(key) as HTMLInputElement;
+      el.textContent = errors[key] ?? '';
+      input.toggleAttribute('aria-invalid', Boolean(errors[key]));
+    }
+    const first = (['name', 'email', 'message'] as const).find((k) => errors[k]);
+    if (first) (form.elements.namedItem(first) as HTMLElement).focus();
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formErr.textContent = '';
+    const data = new FormData(form);
+    if (String(data.get('website') ?? '')) return; // bot filled the hidden field
+    const msg: ContactMessage = {
+      name: String(data.get('name') ?? ''),
+      email: String(data.get('email') ?? ''),
+      message: String(data.get('message') ?? ''),
+    };
+    const errors = validate(msg);
+    showErrors(errors);
+    if (Object.keys(errors).length) return;
+    submit.disabled = true;
+    submit.textContent = 'Sending…';
+    try {
+      await sendMessage(msg);
+      form.reset();
+      form.hidden = true;
+      sent.hidden = false;
+      sent.querySelector<HTMLElement>('[data-again]')!.focus();
+    } catch (err) {
+      formErr.textContent = err instanceof NotConnectedError
+        ? 'Sending isn’t switched on yet. Please try again soon.'
+        : 'Something went wrong. Please try again in a moment.';
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Send message';
+    }
+  });
+
+  root.querySelector('[data-again]')!.addEventListener('click', () => {
+    sent.hidden = true;
+    form.hidden = false;
+    (form.elements.namedItem('name') as HTMLElement).focus();
+  });
+</script>
+
+<style>
+  .layer-1 { background: var(--layer-1); }
+  .layer-2 { background: var(--layer-2); }
+  .layer-3 { background: var(--layer-3); }
+  .layer-4 { background: var(--layer-4); }
+  .layer-5 { background: var(--layer-5); }
+  .hero { padding-block: clamp(56px, 8vw, 104px); display: flex; flex-wrap: wrap; gap: 48px; align-items: center; }
+  .portrait { flex: 0 0 auto; width: clamp(180px, 22vw, 280px); aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius); }
+  .text { flex: 1 1 440px; min-width: 0; }
+  .eyebrow { font-size: var(--text-meta); color: var(--muted); margin: 0 0 14px; }
+  h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.05; }
+  .tag { margin: 20px 0 0; font-size: 15px; }
+  .lead { margin: 12px 0 0; max-width: 46ch; font-size: var(--text-lead); line-height: 1.5; color: var(--muted); }
+  .links { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 0 20px; }
+  .links a { min-height: var(--tap); display: inline-flex; align-items: center; }
+  .split { padding-block: 64px 88px; display: flex; flex-wrap: wrap; gap: 24px 80px; }
+  .split h2 { flex: 0 1 320px; }
+  .story { flex: 1 1 480px; min-width: 0; max-width: 64ch; display: flex; flex-direction: column; gap: 16px; }
+  .story p { margin: 0; }
+  .band { padding-block: 64px 88px; }
+  .make-h { margin-bottom: 28px; }
+  .makes { display: flex; flex-wrap: wrap; gap: 16px; }
+  .make { flex: 1 1 260px; min-width: 0; text-decoration: none; padding: 24px; border: 1px solid rgba(230, 223, 208, 0.16); border-radius: var(--radius); display: flex; flex-direction: column; gap: 8px; }
+  .h3 { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-h3); line-height: 1.3; letter-spacing: 0.03em; margin: 0; }
+  .line { font-size: 17px; color: var(--muted); }
+  dl { flex: 1 1 480px; min-width: 0; margin: 0; border-top: 1px solid rgba(230, 223, 208, 0.16); }
+  .gear { display: flex; flex-wrap: wrap; gap: 4px 24px; padding: 14px 0; border-bottom: 1px solid rgba(230, 223, 208, 0.16); }
+  .gear dt { flex: 0 0 160px; font-size: 14px; color: var(--muted); }
+  .gear dd { margin: 0; flex: 1 1 240px; }
+  .contact { padding-block: 64px 88px; display: flex; flex-wrap: wrap; gap: 40px 80px; }
+  .side { flex: 0 1 320px; }
+  .hint { margin: 16px 0 8px; }
+  .side .links { margin: 0; }
+  .form-col { flex: 1 1 440px; min-width: 0; }
+  form { display: flex; flex-direction: column; gap: 18px; }
+  form[hidden], .sent[hidden] { display: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 18px; }
+  .row .f { flex: 1 1 200px; min-width: 0; }
+  label { display: block; font-size: 14px; color: var(--bone); margin-bottom: 6px; }
+  .field { width: 100%; box-sizing: border-box; background: var(--ink); color: var(--bone); border: 1px solid var(--muted); border-radius: var(--radius); padding: 12px 14px; font: inherit; font-size: 18px; min-height: 48px; }
+  textarea.field { resize: vertical; }
+  .field:focus-visible { outline: 2px solid var(--bone); outline-offset: 2px; }
+  .field[aria-invalid] { border-color: var(--burgundy-light); }
+  .err { margin: 6px 0 0; font-size: 15px; color: var(--burgundy-light); min-height: 0; }
+  .err:empty { display: none; }
+  form .btn { align-self: flex-start; }
+  .sent { padding: 28px; border: 1px solid var(--bone); border-radius: var(--radius); }
+  .sent p { margin: 8px 0 16px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>

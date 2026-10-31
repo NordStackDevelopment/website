@@ -109,6 +109,10 @@ camera settings beside them. Clicking a photo opens a full-screen viewer that wo
 keys move between photos and Escape closes it. Until the database arrives in the next phase, the collections are
 sample placeholders.
 
+The last public page is About: the story, the gear, and a contact form. The form already checks what you type
+and tells you what's missing, and it has a hidden field that catches bots. It doesn't send anything yet. That gets
+connected once the database is in place.
+
 ## Parts
 
 | Part | What for |
