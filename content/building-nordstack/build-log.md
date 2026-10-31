@@ -104,6 +104,11 @@ The Projects pages came next and work the same way. Each project is one text fil
 apps, tools, web and scripts, and every project page links back to its build log when it has one. This site is the
 first project on the list.
 
+Photos followed. Collections are grouped by year, and each one opens into a column of large frames with the
+camera settings beside them. Clicking a photo opens a full-screen viewer that works with the keyboard: the arrow
+keys move between photos and Escape closes it. Until the database arrives in the next phase, the collections are
+sample placeholders.
+
 ## Parts
 
 | Part | What for |

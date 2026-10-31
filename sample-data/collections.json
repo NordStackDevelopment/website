@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "sample-collection-one",
+    "title": "[Collection title]",
+    "place": "[Place, Country]",
+    "year": 2026,
+    "dates": "[dates]",
+    "latitude": null,
+    "featured": true,
+    "intro": "[Two or three sentences on the trip. Sample collection until real photos arrive in Phase 3.]",
+    "photos": [
+      { "src": null, "caption": "[Caption one. Place, year.]", "camera": "[Camera]", "lens": "[Lens]", "exposure": "[f/8 · 1/250 s · ISO 100]", "date": "[Date]" },
+      { "src": null, "caption": "[Caption two. Place, year.]", "camera": "[Camera]", "lens": "[Lens]", "exposure": "[f/5.6 · 1/60 s · ISO 400]", "date": "[Date]" },
+      { "src": null, "caption": "[Caption three. Place, year.]", "camera": null, "lens": null, "exposure": null, "date": null }
+    ]
+  },
+  {
+    "slug": "sample-collection-two",
+    "title": "[Second collection]",
+    "place": "[Place, Country]",
+    "year": 2025,
+    "dates": "[dates]",
+    "latitude": null,
+    "featured": false,
+    "intro": "[Two or three sentences on the trip.]",
+    "photos": [
+      { "src": null, "caption": "[Caption one. Place, year.]", "camera": "[Camera]", "lens": "[Lens]", "exposure": "[f/11 · 1/125 s · ISO 200]", "date": "[Date]" },
+      { "src": null, "caption": "[Caption two. Place, year.]", "camera": "[Camera]", "lens": "[Lens]", "exposure": "[f/4 · 1/30 s · ISO 800]", "date": "[Date]" }
+    ]
+  }
+]
