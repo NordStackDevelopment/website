@@ -4,7 +4,7 @@ test('home page shows the hero, current build and sections', async ({ page }) =>
   await page.goto('/');
   await expect(page).toHaveTitle('NordStack');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Building from the ground up');
-  await expect(page.getByRole('navigation', { name: 'Main' }).getByAltText('NordStack')).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'NordStack home' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Building NordStack', level: 2 })).toBeVisible();
   for (const name of ['Work', 'Photographs', 'Made up north, one layer at a time']) {
     await expect(page.getByRole('heading', { name, level: 2 })).toBeVisible();
