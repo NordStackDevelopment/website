@@ -1,0 +1,213 @@
+---
+import Site from '../../layouts/Site.astro';
+import Ridge from '../../components/Ridge.astro';
+import { getCollections, hasExif, formatLatitude, photoCount, type Collection } from '../../lib/photos';
+
+export async function getStaticPaths() {
+  const cols = await getCollections();
+  return cols.map((c, i) => ({
+    params: { slug: c.slug },
+    props: { col: c, next: cols[(i + 1) % cols.length] },
+  }));
+}
+
+const { col: c, next } = Astro.props as { col: Collection; next: Collection };
+const meta = [c.dates ? `${c.dates} ${c.year}` : String(c.year), c.latitude != null ? formatLatitude(c.latitude) : null, photoCount(c.photos.length)]
+  .filter(Boolean).join(' · ');
+const viewerData = c.photos.map((p) => ({ ...p, exif: hasExif(p) }));
+---
+<Site title={c.title} current="photos" description={c.intro}>
+  <section class="layer-1">
+    <div class="wrap intro">
+      <nav aria-label="Breadcrumb" class="mono crumbs">
+        <a href="/photos">Photos</a> <span aria-hidden="true">/</span> <span aria-current="page">{c.title}</span>
+      </nav>
+      <div class="head">
+        <div class="title">
+          <h1>{c.title}</h1>
+          <p class="place">{c.place}</p>
+          <div class="rule" aria-hidden="true"></div>
+        </div>
+        <aside aria-label="About this collection">
+          <p class="lead">{c.intro}</p>
+          <p class="mono meta">{meta}</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <Ridge color="var(--layer-2)" variant={1} />
+  <section class="layer-2" aria-label="Photos in this collection">
+    <div class="wrap band">
+      <div class="tiles">
+        {c.photos.map((p, i) => (
+          <figure class="tile">
+            <button type="button" class="open" data-open={i} aria-label={`Open ${p.caption} full screen`}>
+              {p.src ? <img src={p.src} alt={p.caption} loading="lazy" /> : <div class="ph shot"></div>}
+            </button>
+            <figcaption>
+              <span class="cap">{p.caption}</span>
+              {hasExif(p) && (
+                <p class="exif">
+                  {p.camera && <b>{p.camera}</b>}
+                  {[p.lens, p.exposure, p.date].filter(Boolean).map((v) => <><br />{v}</>)}
+                </p>
+              )}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Ridge color="var(--layer-5)" variant={2} />
+  <nav class="layer-5" aria-label="More collections">
+    <div class="wrap more">
+      {next && next.slug !== c.slug
+        ? <a class="pn" href={`/photos/${next.slug}`}><span class="mono">Next collection</span><span class="t">{next.title} →</span></a>
+        : <span></span>}
+      <a class="btn btn-outline" href="/photos">All photographs</a>
+    </div>
+  </nav>
+
+  <div class="viewer" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden data-viewer>
+    <div class="vtop">
+      <span class="mono pos" data-pos></span>
+      <button type="button" class="vbtn" data-close>
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4 L14 14 M14 4 L4 14"></path></svg>Close
+      </button>
+    </div>
+    <div class="vmid">
+      <button type="button" class="vbtn" data-prev>
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 3 L5 9 L11 15"></path></svg><span class="lbl">Previous</span>
+      </button>
+      <div class="vimg" data-img></div>
+      <button type="button" class="vbtn" data-next>
+        <span class="lbl">Next</span><svg aria-hidden="true" width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3 L13 9 L7 15"></path></svg>
+      </button>
+    </div>
+    <div class="vbot">
+      <p class="vcap" data-cap></p>
+      <p class="exif" data-exif></p>
+    </div>
+  </div>
+  <script type="application/json" data-photos set:html={JSON.stringify(viewerData)} />
+</Site>
+
+<script>
+  type P = { src: string | null; caption: string; camera: string | null; lens: string | null; exposure: string | null; date: string | null; exif: boolean };
+  const photos: P[] = JSON.parse(document.querySelector('[data-photos]')!.textContent || '[]');
+  const viewer = document.querySelector<HTMLElement>('[data-viewer]')!;
+  const q = <T extends HTMLElement>(s: string) => viewer.querySelector<T>(s)!;
+  const img = q('[data-img]'), pos = q('[data-pos]'), cap = q('[data-cap]'), exif = q('[data-exif]');
+  const closeBtn = q<HTMLButtonElement>('[data-close]');
+  let index = 0;
+  let opener: HTMLElement | null = null;
+
+  function show(i: number) {
+    index = (i + photos.length) % photos.length;
+    const p = photos[index];
+    pos.textContent = `${index + 1} / ${photos.length}`;
+    img.replaceChildren();
+    if (p.src) {
+      const el = document.createElement('img');
+      el.src = p.src; el.alt = p.caption;
+      img.append(el);
+      img.removeAttribute('role'); img.removeAttribute('aria-label');
+      img.classList.remove('ph');
+    } else {
+      img.classList.add('ph');
+      img.setAttribute('role', 'img'); img.setAttribute('aria-label', p.caption);
+    }
+    cap.textContent = p.caption;
+    exif.replaceChildren();
+    exif.hidden = !p.exif;
+    if (p.exif) {
+      if (p.camera) { const b = document.createElement('b'); b.textContent = p.camera; exif.append(b); }
+      for (const v of [p.lens, p.exposure, p.date]) if (v) exif.append(document.createElement('br'), v);
+    }
+  }
+  function open(i: number, from: HTMLElement) {
+    opener = from;
+    show(i);
+    viewer.hidden = false;
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+  function close() {
+    viewer.hidden = true;
+    document.body.style.overflow = '';
+    opener?.focus();
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-open]').forEach((b) =>
+    b.addEventListener('click', () => open(Number(b.dataset.open), b)));
+  closeBtn.addEventListener('click', close);
+  q('[data-prev]').addEventListener('click', () => show(index - 1));
+  q('[data-next]').addEventListener('click', () => show(index + 1));
+  document.addEventListener('keydown', (e) => {
+    if (viewer.hidden) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') show(index - 1);
+    else if (e.key === 'ArrowRight') show(index + 1);
+    else if (e.key === 'Tab') {
+      // Keep focus inside the viewer.
+      const f = [...viewer.querySelectorAll<HTMLElement>('button')];
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+</script>
+
+<style>
+  .layer-1 { background: var(--layer-1); }
+  .layer-2 { background: var(--layer-2); }
+  .layer-5 { background: var(--layer-5); }
+  .intro { padding-block: 32px clamp(56px, 7vw, 96px); }
+  .crumbs { font-size: var(--text-meta); color: var(--muted); }
+  .crumbs a { min-height: var(--tap); display: inline-flex; align-items: center; }
+  .head { margin-top: clamp(32px, 5vw, 64px); display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; justify-content: space-between; }
+  .title { flex: 1 1 520px; min-width: 0; }
+  h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.05; }
+  .place { margin: 14px 0 0; font-family: var(--font-heading); font-weight: 600; font-size: 19px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .rule { width: 56px; height: 2px; background: var(--burgundy-light); margin-top: 20px; }
+  aside { flex: 0 1 380px; border-left: 1px solid rgba(230, 223, 208, 0.2); padding-left: 24px; }
+  .lead { margin: 0; font-size: var(--text-lead); line-height: 1.5; color: var(--muted); }
+  .meta { margin: 12px 0 0; font-size: var(--text-meta); color: var(--muted); }
+
+  .band { padding-block: 56px 88px; }
+  .tiles { display: flex; flex-direction: column; gap: clamp(48px, 6vw, 80px); }
+  .tile { margin: 0; display: flex; flex-wrap: wrap; gap: 16px 40px; align-items: flex-end; }
+  .open { flex: 1 1 640px; min-width: 0; display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: zoom-in; }
+  .open img, .shot { width: 100%; height: clamp(320px, 46vw, 640px); object-fit: cover; display: block; border-radius: var(--radius); }
+  figcaption { flex: 0 1 260px; min-width: 0; }
+  .cap { display: block; font-style: italic; font-size: 19px; }
+  .exif { font-family: var(--font-mono); font-size: 14px; line-height: 1.7; color: var(--muted); margin: 8px 0 0; }
+  .exif :global(b), .exif b { font-weight: 400; color: var(--bone); }
+
+  .more { padding-block: 48px 56px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
+  .pn { text-decoration: none; min-height: var(--tap); display: flex; flex-direction: column; justify-content: center; }
+  .pn .mono { font-size: 13px; color: var(--muted); }
+  .pn .t { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-h3); letter-spacing: 0.03em; }
+
+  .viewer { position: fixed; inset: 0; z-index: 10; background: rgba(15, 14, 12, 0.97); display: flex; flex-direction: column; }
+  .viewer[hidden] { display: none; }
+  .vtop { display: flex; justify-content: space-between; align-items: center; padding: 16px clamp(16px, 4vw, 40px); }
+  .pos { font-size: var(--text-meta); color: var(--muted); }
+  .vmid { flex: 1; min-height: 0; display: flex; align-items: center; gap: 16px; padding: 0 clamp(8px, 3vw, 32px); }
+  .vimg { flex: 1; min-width: 0; height: 100%; max-height: 72vh; display: flex; align-items: center; justify-content: center; }
+  .vimg :global(img) { max-width: 100%; max-height: 72vh; object-fit: contain; }
+  .vbot { padding: 20px clamp(16px, 4vw, 40px) 28px; display: flex; flex-wrap: wrap; gap: 8px 40px; justify-content: center; align-items: flex-start; }
+  .vcap { margin: 0; font-style: italic; flex: 0 1 360px; }
+  .vbot .exif { margin: 0; }
+  .vbtn {
+    border: 1px solid rgba(230, 223, 208, 0.4); background: var(--ink); color: var(--bone); border-radius: 999px;
+    min-height: 48px; min-width: 48px; padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 17px; cursor: pointer;
+  }
+  .vbtn:focus-visible { outline: 2px solid var(--bone); outline-offset: 2px; }
+  @media (max-width: 600px) {
+    .vmid .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .vmid .vbtn { padding: 0; }
+  }
+</style>

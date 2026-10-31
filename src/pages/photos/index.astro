@@ -1,0 +1,84 @@
+---
+import Site from '../../layouts/Site.astro';
+import Ridge from '../../components/Ridge.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getCollections, groupByYear, photoCount } from '../../lib/photos';
+
+const cols = await getCollections();
+const featured = cols.find((c) => c.featured) ?? cols[0];
+const years = groupByYear(cols);
+const total = cols.reduce((n, c) => n + c.photos.length, 0);
+const layers = ['var(--layer-3)', 'var(--layer-4)', 'var(--layer-5)'];
+const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+---
+<Site title="Photos" current="photos" description="Trips and series, grouped by year.">
+  <PageHeader
+    eyebrow={`${plural(cols.length, 'collection')} · ${plural(total, 'photograph')}`}
+    title="Photographs"
+    lead="Trips and series, grouped by year. Every photo carries its place and settings."
+  />
+
+  {featured && (
+    <>
+      <Ridge color="var(--layer-2)" variant={1} />
+      <section class="band-2" aria-labelledby="feat-h">
+        <div class="wrap feat">
+          <a href={`/photos/${featured.slug}`}>
+            {featured.photos[0]?.src
+              ? <img class="feat-img" src={featured.photos[0].src} alt={featured.photos[0].caption} />
+              : <div class="ph feat-img" role="img" aria-label={`Photo placeholder: ${featured.title}`}></div>}
+            <div class="feat-row">
+              <div>
+                <p class="mono eyebrow">Featured · {featured.place} · {featured.year} · {photoCount(featured.photos.length)}</p>
+                <h2 id="feat-h">{featured.title}</h2>
+              </div>
+              <span class="btn btn-solid">Open collection</span>
+            </div>
+          </a>
+        </div>
+      </section>
+    </>
+  )}
+
+  {years.map(([year, list], i) => (
+    <>
+      <Ridge color={layers[i % layers.length]} variant={((i + 1) % 3 + 1) as 1 | 2 | 3} />
+      <section style={`background:${layers[i % layers.length]}`} aria-labelledby={`y${year}`}>
+        <div class="wrap year">
+          <h2 id={`y${year}`}>{year}</h2>
+          <div class="cols">
+            {list.map((c) => (
+              <a class="col" href={`/photos/${c.slug}`}>
+                {c.photos[0]?.src
+                  ? <img src={c.photos[0].src} alt="" loading="lazy" />
+                  : <div class="ph" role="img" aria-label={`Collection cover placeholder: ${c.title}`}></div>}
+                <span>
+                  <span class="t"><span class="h3">{c.title}</span><span class="place"> — {c.place}</span></span>
+                  <span class="mono n">{photoCount(c.photos.length)}</span>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  ))}
+</Site>
+
+<style>
+  .band-2 { background: var(--layer-2); }
+  .feat { padding-block: 56px 88px; }
+  .feat a { text-decoration: none; display: block; }
+  .feat-img { height: clamp(300px, 48vw, 620px); width: 100%; object-fit: cover; display: block; border-radius: var(--radius); }
+  .feat-row { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: flex-end; justify-content: space-between; margin-top: 24px; }
+  .eyebrow { font-size: var(--text-meta); color: var(--muted); margin: 0 0 8px; }
+  .year { padding-block: 64px 88px; }
+  .year h2 { margin-bottom: 28px; }
+  .cols { display: flex; flex-wrap: wrap; gap: 24px; }
+  .col { flex: 1 1 300px; min-width: 0; max-width: 100%; text-decoration: none; display: flex; flex-direction: column; gap: 12px; }
+  .col img, .col .ph { height: 240px; width: 100%; object-fit: cover; display: block; border-radius: var(--radius); }
+  .col .t { display: block; }
+  .h3 { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-h3); letter-spacing: 0.03em; }
+  .place { color: var(--muted); }
+  .n { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
+</style>
