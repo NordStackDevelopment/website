@@ -1,0 +1,35 @@
+---
+// A build's layers as a stack, Layer 1 at the bottom.
+import type { Layer } from '../lib/content';
+interface Props { layers: Layer[]; variant?: 'list' | 'blocks' }
+const { layers, variant = 'list' } = Astro.props;
+---
+<ol aria-label="Progress, layer by layer" class:list={['stack', variant]}>
+  {layers.map((l) => (
+    <li class:list={{ done: l.status === 'Done', progress: l.status === 'In progress', next: l.status === 'Next' }}>
+      <span class="mono num">Layer {l.number}</span>
+      <span class="title">{l.title}</span>
+      <span class="status">{l.status}</span>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .stack { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column-reverse; }
+  li { display: flex; gap: 16px; align-items: baseline; }
+  .num { flex: 0 0 64px; font-size: var(--text-meta); color: var(--muted); }
+  .title { flex: 1; }
+  .status { margin-left: auto; font-weight: 600; white-space: nowrap; }
+  .progress .status { color: var(--burgundy-light); }
+  .next .status, .next .title { color: var(--muted); }
+  .next .status { font-weight: 400; }
+
+  .list li { padding: 14px 0; border-top: 1px solid var(--rule); }
+
+  .blocks { gap: 4px; }
+  .blocks li { align-items: center; gap: 14px; padding: 10px 14px; border-radius: 3px; }
+  .blocks .num { flex-basis: 60px; font-size: 13px; }
+  .blocks .done { background: var(--green); }
+  .blocks .progress { border: 1px solid var(--burgundy-light); }
+  .blocks .next { border: 1px dashed rgba(230, 223, 208, 0.3); }
+</style>

@@ -52,4 +52,11 @@ The site is built in three layers of branches:
 2. Open a pull request into `dev`. The checks (type check, build, tests) must pass before merging.
 3. When a whole phase is in `dev` and tested on its preview link, open a pull request from `dev` into `main`.
 
-Never commit straight to `main` or `dev`.
+Never commit straight to `main` or `dev`. Both are protected on GitHub: no deleting, no force pushes, pull
+requests only, and the `build-and-test` check must pass. Merged work branches are deleted automatically.
+
+## Build logs
+
+Until Supabase is connected, each build log is a Markdown file at `content/<slug>/build-log.md`, with its photos in
+`content/<slug>/images/`. Each `## Layer N · Title` section becomes one layer on the page, and `## Parts` and
+`## Files` sections become the parts list and files list. `src/lib/buildlog.ts` reads them at build time.

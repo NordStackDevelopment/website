@@ -46,8 +46,8 @@ and empty sections simply don't appear.
 
 ## Layer 3 · The plan and the foundations
 
-- **Status:** In progress
-- **Dates:** 2026-10-31 –
+- **Status:** Done
+- **Dates:** 2026-10-31
 - **Photo:** `images/layer-03-first-page.png`
 - **Caption:** The very first page the new site served: just the logo on the layered background.
 
@@ -70,8 +70,8 @@ into `main` only when a whole phase is done and tested. The first live page was 
 
 ## Layer 4 · Look and layout
 
-- **Status:** In progress
-- **Dates:** 2026-10-31 –
+- **Status:** Done
+- **Dates:** 2026-10-31
 - **Photo:** `images/layer-04-home-desktop.png`
 - **Caption:** The Home page, built for real: five layers from ink to bottle green, joined by ridged edges.
 
@@ -83,6 +83,21 @@ The Home page came next, rebuilt from the approved design. The "Now building" ba
 very build log, reading its layers from the same place the rest of the content will come from. The Work filter works
 without a page reload and tells screen readers how many items are showing. On a phone everything stacks into one
 column with no sideways scrolling, and a test checks that on every build.
+
+## Layer 5 · The pages
+
+- **Status:** In progress
+- **Dates:** 2026-10-31 –
+- **Photo:**
+- **Caption:**
+
+With the look in place, the pages started arriving, starting with this one. The build log you're reading isn't typed
+into the page: it's a plain text file kept alongside the code, one section per layer. When the site is built, each
+section becomes a band on the page, the newest photo goes to the top, and the jump list, progress bar and reading
+time are worked out from the text. Adding a layer is just adding a section to the file.
+
+The site's two main branches are now locked down as well. Nothing can be pushed straight to them, they can't be
+deleted or rewritten, and a change only gets in through a pull request whose tests have passed.
 
 ## Parts
 
