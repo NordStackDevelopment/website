@@ -63,7 +63,10 @@ Today the project skeleton went in: Astro with strict TypeScript, Svelte, the Su
 files straight from the brand kit, and a first test that opens the page and checks the logo is there. The build and
 the test both pass.
 
-**Up next in this layer:** the GitHub repository and Cloudflare Pages, so every change gets its own preview link.
+Then the code went up to GitHub and hosting was connected. Cloudflare Pages builds the `main` branch into the live
+site and gives every other branch its own preview link, so nothing reaches the live site before it has been looked
+at. Work happens in three layers of branches: small `feat/` and `fix/` branches merge into `dev`, and `dev` merges
+into `main` only when a whole phase is done and tested. The first live page was the logo on its layered background.
 
 ## Layer 4 · Look and layout
 
