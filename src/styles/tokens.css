@@ -1,0 +1,20 @@
+/* NordStack brand tokens. Values from BrandKit/Colors and Site_Pages_2026-10-31.md.
+   Phase 1 fills in the type scale and spacing from BrandKit/Fonts. */
+:root {
+  --bone: #E6DFD0;
+  --muted: #B5AE9C;
+  --green: #2C3A2F;
+  --burgundy-light: #D1A3A7;
+
+  /* Layers, top (ink) to bottom (bottle green) */
+  --layer-1: #1E1B18;
+  --layer-2: #222722;
+  --layer-3: #262E28;
+  --layer-4: #29332B;
+  --layer-5: #2C3A2F;
+
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'EB Garamond', serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-system: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}

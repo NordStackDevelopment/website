@@ -1,0 +1,23 @@
+---
+// Phase 0 placeholder. Phase 1 replaces this with the style D Home page (BrandKit/WebsiteStyles/pages/Home.dc.html).
+import Base from '../layouts/Base.astro';
+---
+<Base title="NordStack">
+  <main>
+    <img src="/brand/nordstack-stacked-bone.svg" alt="NordStack" width="240" />
+    <p>Being built, layer by layer.</p>
+  </main>
+</Base>
+
+<style>
+  main {
+    min-height: 100vh;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(var(--layer-1), var(--layer-5));
+  }
+  p { font-size: 1.25rem; color: var(--muted); margin: 0; }
+</style>
