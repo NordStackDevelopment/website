@@ -1,0 +1,6 @@
+[
+  { "kind": "build", "href": "/builds/building-nordstack", "meta": "Build · Oct 2026", "title": "Building NordStack", "line": "This website, built in the open, one layer at a time." },
+  { "kind": "project", "href": "/projects", "meta": "Project · [Mon year]", "title": "[Project name]", "line": "[One line on what it does.]" },
+  { "kind": "photo", "href": "/photos", "meta": "Photo · [Place year]", "title": "[Collection name]", "line": "[One line about the collection.]" },
+  { "kind": "project", "href": "/projects", "meta": "Project · [Mon year]", "title": "[Project name]", "line": "[One line on what it does.]" }
+]

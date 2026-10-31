@@ -1,19 +1,23 @@
 ---
-import '../styles/tokens.css';
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
 
 interface Props {
-  title: string;
+  title?: string;
   description?: string;
+  current?: 'projects' | 'builds' | 'photos' | 'about';
 }
 
-const { title, description = 'Projects, builds and photographs by NordStack.' } = Astro.props;
+const { title, description = 'Projects, builds and photographs, laid down one layer at a time.', current } = Astro.props;
+const fullTitle = title ? `${title} · NordStack` : 'NordStack';
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -22,11 +26,11 @@ const { title, description = 'Projects, builds and photographs by NordStack.' } 
     <meta name="theme-color" content="#2C3A2F" />
   </head>
   <body>
-    <slot />
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Navbar current={current} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
   </body>
 </html>
-
-<style is:global>
-  html { background: var(--layer-1); color: var(--bone); }
-  body { margin: 0; font-family: var(--font-body); }
-</style>

@@ -1,0 +1,43 @@
+---
+interface Props {
+  current?: 'projects' | 'builds' | 'photos' | 'about';
+}
+const { current } = Astro.props;
+const links = [
+  { id: 'projects', label: 'Projects', href: '/projects' },
+  { id: 'builds', label: 'Builds', href: '/builds' },
+  { id: 'photos', label: 'Photos', href: '/photos' },
+  { id: 'about', label: 'About', href: '/about' },
+] as const;
+---
+<header>
+  <nav aria-label="Main" class="wrap">
+    <a href="/" aria-label="NordStack home" class="home">
+      <img src="/brand/nordstack-horizontal-compact-bone.svg" alt="NordStack" height="26" />
+    </a>
+    <div class="links">
+      {links.map((l) => (
+        <a href={l.href} aria-current={current === l.id ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </div>
+  </nav>
+</header>
+
+<style>
+  header { background: var(--green); }
+  nav {
+    padding-block: 14px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px 32px;
+  }
+  .home { display: flex; align-items: center; min-height: var(--tap); }
+  .home img { height: 26px; width: auto; display: block; }
+  .links { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .links a {
+    font-family: var(--font-heading); font-weight: 700; font-size: 14px;
+    letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
+    padding: 0 12px; min-height: var(--tap); display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+  }
+  .links a[aria-current='page'] { border-bottom-color: var(--burgundy-light); }
+</style>

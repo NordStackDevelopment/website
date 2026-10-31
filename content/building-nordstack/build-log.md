@@ -67,12 +67,19 @@ the test both pass.
 
 ## Layer 4 · Look and layout
 
-- **Status:** Next
-- **Dates:**
-- **Photo:**
-- **Caption:**
+- **Status:** In progress
+- **Dates:** 2026-10-31 –
+- **Photo:** `images/layer-04-home-desktop.png`
+- **Caption:** The Home page, built for real: five layers from ink to bottle green, joined by ridged edges.
 
-The shared navbar, ridged layers and footer, with self-hosted fonts, then the Home page.
+The design became code. The colours, type sizes and spacing went into one tokens file, and Cinzel and EB Garamond are
+now served from the site itself instead of from Google. The navbar, the ridged edge between layers and the footer are
+shared parts, so every page gets them for free.
+
+The Home page came next, rebuilt from the approved design. The "Now building" band isn't sample text: it shows this
+very build log, reading its layers from the same place the rest of the content will come from. The Work filter works
+without a page reload and tells screen readers how many items are showing. On a phone everything stacks into one
+column with no sideways scrolling, and a test checks that on every build.
 
 ## Parts
 

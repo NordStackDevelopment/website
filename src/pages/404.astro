@@ -1,0 +1,26 @@
+---
+import Site from '../layouts/Site.astro';
+---
+<Site title="Off the map">
+  <section>
+    <div class="wrap box">
+      <p class="mono muted">404</p>
+      <h1>Off the map</h1>
+      <p class="lead">This page doesn't exist, or it moved. Pick a trail back:</p>
+      <div class="links">
+        <a class="btn btn-solid" href="/">Home</a>
+        <a class="btn btn-outline" href="/projects">Projects</a>
+        <a class="btn btn-outline" href="/builds">Builds</a>
+        <a class="btn btn-outline" href="/photos">Photos</a>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<style>
+  section { background: linear-gradient(var(--layer-1), var(--layer-3)); }
+  .box { padding-block: clamp(80px, 12vw, 160px); }
+  .box > p:first-child { margin: 0 0 12px; font-size: var(--text-meta); }
+  .lead { color: var(--muted); font-size: var(--text-lead); margin: 20px 0 32px; }
+  .links { display: flex; flex-wrap: wrap; gap: 12px; }
+</style>
