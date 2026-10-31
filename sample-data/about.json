@@ -1,0 +1,17 @@
+{
+  "portrait": null,
+  "title": "Made up north, one layer at a time",
+  "tagline": "[Developer, builder and photographer] · [Place]",
+  "intro": "[Two sentences, in your own voice: who you are and what NordStack is.]",
+  "story": [
+    "[How you started building and photographing.]",
+    "[What NordStack means to you: building from the ground up.]"
+  ],
+  "gear": [
+    { "label": "Camera", "value": "[Body]" },
+    { "label": "Lenses", "value": "[Lens], [lens]" },
+    { "label": "Computer", "value": "[Machine]" },
+    { "label": "Editor", "value": "[Code editor]" },
+    { "label": "Workshop", "value": "[Tools]" }
+  ]
+}
