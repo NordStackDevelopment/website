@@ -99,6 +99,11 @@ time are worked out from the text. Adding a layer is just adding a section to th
 The site's two main branches are now locked down as well. Nothing can be pushed straight to them, they can't be
 deleted or rewritten, and a change only gets in through a pull request whose tests have passed.
 
+The Projects pages came next and work the same way. Each project is one text file with a few facts at the top
+(what kind it is, its status, the stack, links) and the write-up below. The list page groups them with a filter for
+apps, tools, web and scripts, and every project page links back to its build log when it has one. This site is the
+first project on the list.
+
 ## Parts
 
 | Part | What for |

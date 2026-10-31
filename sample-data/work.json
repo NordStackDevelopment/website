@@ -1,6 +1,30 @@
 [
-  { "kind": "build", "href": "/builds/building-nordstack", "meta": "Build · Oct 2026", "title": "Building NordStack", "line": "This website, built in the open, one layer at a time." },
-  { "kind": "project", "href": "/projects", "meta": "Project · [Mon year]", "title": "[Project name]", "line": "[One line on what it does.]" },
-  { "kind": "photo", "href": "/photos", "meta": "Photo · [Place year]", "title": "[Collection name]", "line": "[One line about the collection.]" },
-  { "kind": "project", "href": "/projects", "meta": "Project · [Mon year]", "title": "[Project name]", "line": "[One line on what it does.]" }
+  {
+    "kind": "build",
+    "href": "/builds/building-nordstack",
+    "meta": "Build \u00b7 Oct 2026",
+    "title": "Building NordStack",
+    "line": "This website, built in the open, one layer at a time."
+  },
+  {
+    "kind": "project",
+    "href": "/projects/nordstack-website",
+    "meta": "Project \u00b7 Oct 2026",
+    "title": "NordStack",
+    "line": "This website: projects, builds and photographs, built from the ground up."
+  },
+  {
+    "kind": "photo",
+    "href": "/photos",
+    "meta": "Photo \u00b7 [Place year]",
+    "title": "[Collection name]",
+    "line": "[One line about the collection.]"
+  },
+  {
+    "kind": "project",
+    "href": "/projects/github-profile",
+    "meta": "Project \u00b7 Oct 2026",
+    "title": "GitHub profile",
+    "line": "The NordStack profile page on GitHub, with an animated banner."
+  }
 ]
