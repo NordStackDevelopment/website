@@ -1,0 +1,19 @@
+---
+// The jagged edge where one layer meets the next. Sits on top of the layer above it.
+interface Props {
+  color: string;
+  variant?: 1 | 2 | 3 | 4;
+}
+const { color, variant = 1 } = Astro.props;
+const shapes = {
+  1: '0 100%, 0 70%, 6% 45%, 11% 62%, 19% 20%, 26% 48%, 33% 38%, 41% 70%, 49% 30%, 57% 52%, 63% 8%, 71% 46%, 79% 34%, 86% 64%, 93% 26%, 100% 50%, 100% 100%',
+  2: '0 100%, 0 40%, 8% 62%, 14% 30%, 22% 54%, 30% 18%, 37% 50%, 45% 42%, 52% 72%, 60% 28%, 68% 56%, 74% 14%, 82% 44%, 90% 30%, 96% 60%, 100% 36%, 100% 100%',
+  3: '0 100%, 0 56%, 7% 30%, 15% 58%, 21% 22%, 29% 46%, 38% 12%, 44% 52%, 53% 36%, 61% 66%, 67% 24%, 76% 50%, 83% 20%, 91% 52%, 100% 30%, 100% 100%',
+  4: '0 100%, 0 36%, 9% 58%, 16% 26%, 24% 50%, 31% 30%, 39% 64%, 47% 20%, 55% 48%, 62% 34%, 70% 70%, 78% 26%, 85% 54%, 93% 16%, 100% 46%, 100% 100%',
+};
+---
+<div aria-hidden="true" class="ridge" style={`background:${color};clip-path:polygon(${shapes[variant]})`}></div>
+
+<style>
+  .ridge { height: var(--ridge-height); margin-top: calc(-1 * var(--ridge-height)); position: relative; }
+</style>

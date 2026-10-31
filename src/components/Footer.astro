@@ -1,0 +1,25 @@
+---
+import { getSettings } from '../lib/content';
+const s = await getSettings();
+---
+<footer>
+  <div class="wrap">
+    <span>© {new Date().getFullYear()} NordStack</span>
+    <span class="links">
+      <a href={s.github}>GitHub</a>
+      {s.instagram && <a href={s.instagram}>Instagram</a>}
+      {s.email && <a href={`mailto:${s.email}`}>Email</a>}
+    </span>
+  </div>
+</footer>
+
+<style>
+  footer { background: var(--ink); color: var(--muted); }
+  .wrap {
+    padding-block: 20px 24px;
+    display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between;
+    font-size: var(--text-caption);
+  }
+  .links { display: flex; flex-wrap: wrap; gap: 0 20px; color: var(--bone); }
+  .links a { min-height: var(--tap); display: inline-flex; align-items: center; }
+</style>

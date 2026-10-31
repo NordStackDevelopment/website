@@ -63,16 +63,26 @@ Today the project skeleton went in: Astro with strict TypeScript, Svelte, the Su
 files straight from the brand kit, and a first test that opens the page and checks the logo is there. The build and
 the test both pass.
 
-**Up next in this layer:** the GitHub repository and Cloudflare Pages, so every change gets its own preview link.
+Then the code went up to GitHub and hosting was connected. Cloudflare Pages builds the `main` branch into the live
+site and gives every other branch its own preview link, so nothing reaches the live site before it has been looked
+at. Work happens in three layers of branches: small `feat/` and `fix/` branches merge into `dev`, and `dev` merges
+into `main` only when a whole phase is done and tested. The first live page was the logo on its layered background.
 
 ## Layer 4 · Look and layout
 
-- **Status:** Next
-- **Dates:**
-- **Photo:**
-- **Caption:**
+- **Status:** In progress
+- **Dates:** 2026-10-31 –
+- **Photo:** `images/layer-04-home-desktop.png`
+- **Caption:** The Home page, built for real: five layers from ink to bottle green, joined by ridged edges.
 
-The shared navbar, ridged layers and footer, with self-hosted fonts, then the Home page.
+The design became code. The colours, type sizes and spacing went into one tokens file, and Cinzel and EB Garamond are
+now served from the site itself instead of from Google. The navbar, the ridged edge between layers and the footer are
+shared parts, so every page gets them for free.
+
+The Home page came next, rebuilt from the approved design. The "Now building" band isn't sample text: it shows this
+very build log, reading its layers from the same place the rest of the content will come from. The Work filter works
+without a page reload and tells screen readers how many items are showing. On a phone everything stacks into one
+column with no sideways scrolling, and a test checks that on every build.
 
 ## Parts
 
