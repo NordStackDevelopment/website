@@ -1,0 +1,72 @@
+---
+import Site from '../../layouts/Site.astro';
+import Ridge from '../../components/Ridge.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib/content';
+
+const projects = await getProjects();
+const count = projects.length;
+const segments = [['all', 'All'], ['app', 'Apps'], ['tool', 'Tools'], ['web', 'Web'], ['script', 'Scripts']] as const;
+---
+<Site title="Projects" current="projects" description="Things made of code: apps, tools, scripts and websites.">
+  <PageHeader
+    eyebrow={`${count} ${count === 1 ? 'project' : 'projects'} · code, apps and tools`}
+    title="Projects"
+    lead="Things made of code: apps, tools, scripts and websites."
+  />
+  <Ridge color="var(--layer-2)" variant={1} />
+  <section class="layer-2" aria-label="All projects">
+    <div class="wrap band" data-project-filter>
+      <div class="bar">
+        <div role="group" aria-label="Filter projects" class="seg">
+          {segments.map(([id, label]) => (
+            <button type="button" data-kind={id} aria-pressed={id === 'all' ? 'true' : 'false'}>{label}</button>
+          ))}
+        </div>
+        <p class="mono shown" aria-live="polite">Showing <span data-shown>{count}</span> of {count}</p>
+      </div>
+      <div class="cards">
+        {projects.map((p) => <ProjectCard project={p} />)}
+      </div>
+      <p class="mono empty" data-empty hidden>Nothing here yet.</p>
+    </div>
+  </section>
+</Site>
+
+<script>
+  for (const scope of document.querySelectorAll<HTMLElement>('[data-project-filter]')) {
+    const group = scope.querySelector<HTMLElement>('[role=group]')!;
+    const cards = scope.querySelectorAll<HTMLElement>('.card');
+    const shown = scope.querySelector<HTMLElement>('[data-shown]');
+    const empty = scope.querySelector<HTMLElement>('[data-empty]');
+    group.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-kind]');
+      if (!btn) return;
+      group.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      let n = 0;
+      cards.forEach((c) => {
+        const show = btn.dataset.kind === 'all' || c.dataset.kind === btn.dataset.kind;
+        c.hidden = !show;
+        if (show) n++;
+      });
+      if (shown) shown.textContent = String(n);
+      if (empty) empty.hidden = n > 0;
+    });
+  }
+</script>
+
+<style>
+  .layer-2 { background: var(--layer-2); }
+  .band { padding-block: 56px 96px; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; }
+  .seg { display: flex; flex-wrap: wrap; gap: 2px; padding: 3px; background: var(--ink); border: 1px solid var(--muted); border-radius: 10px; }
+  .seg button {
+    border: 0; border-radius: 8px; min-height: var(--tap); min-width: 80px; padding: 0 16px;
+    font-size: var(--text-small); background: transparent; color: var(--bone);
+  }
+  .seg button[aria-pressed='true'] { background: var(--bone); color: var(--green); }
+  .shown { margin: 0; font-size: var(--text-meta); color: var(--muted); }
+  .cards { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 32px; }
+  .empty { color: var(--muted); margin-top: 32px; }
+</style>

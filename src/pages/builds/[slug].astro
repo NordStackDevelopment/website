@@ -1,0 +1,170 @@
+---
+import Site from '../../layouts/Site.astro';
+import Ridge from '../../components/Ridge.astro';
+import { getBuilds, formatDate, formatRange, type BuildLog } from '../../lib/content';
+import { latestPhoto } from '../../lib/buildlog';
+
+export async function getStaticPaths() {
+  const builds = await getBuilds();
+  return builds.map((build) => ({ params: { slug: build.slug }, props: { build } }));
+}
+
+const { build } = Astro.props as { build: BuildLog };
+const done = build.layers.filter((l) => l.status === 'Done').length;
+const inProgress = build.layers.find((l) => l.status === 'In progress');
+const progressText = `${done} of ${build.layers.length} layers done${inProgress ? ` · layer ${inProgress.number} in progress` : ''}`;
+const latest = latestPhoto(build);
+
+// Layer 1 sits at the bottom in bottle green; higher layers step up towards ink.
+const shades = ['var(--layer-5)', 'var(--layer-4)', 'var(--layer-3)', 'var(--layer-2)'];
+const shade = (n: number) => shades[Math.min(n - 1, shades.length - 1)];
+const top = [...build.layers].reverse();
+const hasParts = !!build.parts;
+const hasFiles = build.files.length > 0;
+---
+<Site title={build.title} current="builds" description={build.summary}>
+  <section class="layer-1">
+    <div class="wrap intro">
+      <nav aria-label="Breadcrumb" class="mono crumbs">
+        <a href="/builds">Builds</a> <span aria-hidden="true">/</span> <span aria-current="page">{build.title}</span>
+      </nav>
+      <div class="head">
+        <div class="title">
+          <p class="mono eyebrow">Build · started {formatDate(build.started)} · updated {formatDate(build.updated)} · {build.readingMinutes} min read</p>
+          <h1>{build.title}</h1>
+          <p class="lead">{build.summary}</p>
+        </div>
+        <div class="progress">
+          <p class="mono">{progressText}</p>
+          <div role="img" aria-label={`Progress: ${progressText}`} class="bar">
+            {build.layers.map((l) => (
+              <div class:list={['seg', { done: l.status === 'Done', now: l.status === 'In progress' }]}></div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {latest?.photo && (
+        <figure class="pic latest">
+          <img src={latest.photo} alt={latest.caption || `Latest photo of ${build.title}`} />
+          <figcaption>Where it stands now, after layer {latest.number}.{latest.caption && ` ${latest.caption}`}</figcaption>
+        </figure>
+      )}
+
+      <nav aria-labelledby="jump-h" class="jump">
+        <p id="jump-h" class="mono">Jump to a layer</p>
+        <ul>
+          {build.layers.map((l) => (
+            <li><a href={`#layer-${l.number}`}><span class="mono">{l.number}</span>{l.title}</a></li>
+          ))}
+          {hasParts && <li><a href="#parts-h"><span class="mono">·</span>Parts list</a></li>}
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  {top.map((l, i) => (
+    <>
+      <Ridge color={shade(l.number)} variant={((i % 3) + 1) as 1 | 2 | 3} />
+      <section aria-labelledby={`layer-${l.number}`} style={`background:${shade(l.number)}`}>
+        <div class="wrap layer">
+          <div class="layer-h">
+            <p class="mono eyebrow big">Layer {l.number}{l.dates ? ` · ${formatRange(l.dates)}` : l.status === 'Next' ? ' · next' : ''}</p>
+            <h2 id={`layer-${l.number}`} class:list={{ muted: l.status === 'Next' }}>{l.title}</h2>
+            {l.status !== 'Next' && <p class:list={['status', { now: l.status === 'In progress' }]}>{l.status}</p>}
+          </div>
+          <div class="layer-b">
+            <div class:list={['notes', { muted: l.status === 'Next' }]} set:html={l.html} />
+            {l.photo && l !== latest && (
+              <figure class="pic">
+                <img src={l.photo} alt={l.caption || `Photo from layer ${l.number}`} loading="lazy" />
+                {l.caption && <figcaption>{l.caption}</figcaption>}
+              </figure>
+            )}
+          </div>
+        </div>
+      </section>
+    </>
+  ))}
+
+  {(hasParts || hasFiles) && (
+    <>
+      <Ridge color="var(--layer-1)" variant={2} />
+      <section class="layer-1">
+        <div class="wrap extras">
+          {build.parts && (
+            <div class="parts">
+              <h2 id="parts-h">Parts list</h2>
+              <div class="scroll">
+                <table>
+                  <thead><tr>{build.parts.headers.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+                  <tbody>{build.parts.rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+                </table>
+              </div>
+            </div>
+          )}
+          {hasFiles && (
+            <div class="files">
+              <h2>Files and code</h2>
+              <ul>{build.files.map((f) => <li><a href={f.href}>{f.label}</a></li>)}</ul>
+            </div>
+          )}
+        </div>
+      </section>
+    </>
+  )}
+</Site>
+
+<style>
+  .layer-1 { background: var(--layer-1); }
+  .intro { padding-block: 32px clamp(56px, 7vw, 96px); }
+  .crumbs { font-size: var(--text-meta); color: var(--muted); }
+  .crumbs a { min-height: var(--tap); display: inline-flex; align-items: center; }
+  .head { margin-top: clamp(32px, 5vw, 64px); display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; justify-content: space-between; }
+  .title { flex: 1 1 560px; min-width: 0; }
+  h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.05; }
+  .eyebrow { font-size: var(--text-meta); color: var(--muted); margin: 0 0 14px; }
+  .eyebrow.big { font-size: var(--text-caption); color: var(--bone); }
+  .lead { margin: 20px 0 0; max-width: 40ch; font-size: var(--text-lead); line-height: 1.5; color: var(--muted); }
+  .progress { flex: 0 1 300px; }
+  .progress p { margin: 0 0 8px; font-size: var(--text-meta); color: var(--muted); }
+  .bar { display: flex; gap: 4px; height: 12px; }
+  .seg { flex: 1; border-radius: 2px; border: 1px dashed rgba(230, 223, 208, 0.4); }
+  .seg.done { background: var(--bone); border: 0; }
+  .seg.now { background: var(--burgundy-light); border: 0; }
+
+  .pic { margin: 0; }
+  .pic img { width: 100%; height: auto; display: block; border-radius: var(--radius); }
+  .pic figcaption { font-size: var(--text-caption); color: var(--muted); margin-top: 8px; }
+  .latest { margin-top: clamp(32px, 4vw, 48px); }
+
+  .jump { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  .jump p { margin: 0 0 4px; font-size: var(--text-meta); color: var(--muted); }
+  .jump ul { display: flex; flex-wrap: wrap; gap: 0 4px; list-style: none; margin: 0; padding: 0; }
+  .jump a { min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 12px 0 0; text-decoration: none; font-size: var(--text-small); }
+  .jump a span { font-size: 13px; color: var(--muted); margin-right: 8px; }
+
+  .layer { display: flex; flex-wrap: wrap; gap: 24px 56px; padding-block: 64px 80px; }
+  .layer-h { flex: 0 1 320px; min-width: 0; }
+  .layer-h h2 { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.2; }
+  .layer-h h2.muted { color: var(--muted); }
+  .status { margin: 12px 0 0; font-weight: 600; }
+  .status.now { color: var(--burgundy-light); }
+  .layer-b { flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+  .notes :global(p) { margin: 0 0 1em; }
+  .notes :global(p:last-child) { margin-bottom: 0; }
+  .notes :global(code) { font-family: var(--font-mono); font-size: 0.85em; background: rgba(30, 27, 24, 0.6); padding: 0.1em 0.35em; border-radius: 3px; }
+  .notes :global(pre) { font-family: var(--font-mono); background: var(--ink); padding: 18px 20px; border-radius: var(--radius); overflow-x: auto; font-size: 15px; }
+  .notes.muted { color: var(--muted); }
+
+  .extras { padding-block: 72px 88px; display: flex; flex-wrap: wrap; gap: 40px 64px; }
+  .parts { flex: 2 1 560px; min-width: 0; }
+  .files { flex: 1 1 280px; min-width: 0; }
+  .extras h2 { font-size: clamp(24px, 2.6vw, 32px); margin-bottom: 20px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--rule); }
+  th { font-family: var(--font-mono); font-size: 13px; font-weight: 400; color: var(--muted); }
+  .files ul { list-style: none; margin: 0; padding: 0; }
+  .files a { min-height: var(--tap); display: inline-flex; align-items: center; }
+</style>

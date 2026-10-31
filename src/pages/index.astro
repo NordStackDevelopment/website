@@ -2,6 +2,7 @@
 import Site from '../layouts/Site.astro';
 import Ridge from '../components/Ridge.astro';
 import WorkFilter from '../components/WorkFilter.astro';
+import LayerStack from '../components/LayerStack.astro';
 import { getCurrentBuild, getWork, getHomePhotos, getSettings, formatDate } from '../lib/content';
 
 const build = await getCurrentBuild();
@@ -28,15 +29,7 @@ const settings = await getSettings();
             <p class="summary">{build.summary}</p>
             <a class="btn btn-solid" href={`/builds/${build.slug}`}>Read the build log</a>
           </div>
-          <ol aria-label="Build log" class="stack">
-            {build.layers.map((l) => (
-              <li>
-                <span class="mono num">Layer {l.number}</span>
-                <span>{l.title}</span>
-                <span class:list={['status', { progress: l.status === 'In progress', next: l.status === 'Next' }]}>{l.status}</span>
-              </li>
-            ))}
-          </ol>
+          <div class="stack"><LayerStack layers={build.layers} /></div>
         </div>
       </section>
     </>
@@ -96,15 +89,7 @@ const settings = await getSettings();
   .now-text { flex: 1 1 420px; min-width: 0; }
   .kicker { margin: 0 0 14px; font-size: var(--text-meta); color: var(--muted); }
   .summary { margin: 16px 0 28px; max-width: 46ch; }
-  .stack {
-    flex: 1 1 380px; min-width: 0; list-style: none; margin: 0; padding: 0;
-    display: flex; flex-direction: column-reverse;
-  }
-  .stack li { display: flex; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--rule); }
-  .num { flex: 0 0 64px; font-size: var(--text-meta); color: var(--muted); }
-  .status { margin-left: auto; font-weight: 600; white-space: nowrap; }
-  .status.progress { color: var(--burgundy-light); }
-  .status.next { color: var(--muted); font-weight: 400; }
+  .stack { flex: 1 1 380px; min-width: 0; }
 
   .photos-h { margin-bottom: 32px; }
   .photos { display: flex; flex-wrap: wrap; gap: 16px; }

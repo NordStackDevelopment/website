@@ -1,0 +1,26 @@
+---
+// Top band of a section page: eyebrow, big title, lead line.
+interface Props { eyebrow?: string; title: string; lead?: string }
+const { eyebrow, title, lead } = Astro.props;
+---
+<section class="layer-1">
+  <div class="wrap head">
+    <div class="text">
+      {eyebrow && <p class="mono eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+    </div>
+    {lead && <p class="lead">{lead}</p>}
+  </div>
+</section>
+
+<style>
+  .layer-1 { background: var(--layer-1); }
+  .head {
+    padding-block: clamp(56px, 8vw, 104px);
+    display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; justify-content: space-between;
+  }
+  .text { flex: 1 1 520px; min-width: 0; }
+  h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.05; }
+  .eyebrow { font-size: var(--text-meta); color: var(--muted); margin: 0 0 14px; }
+  .lead { flex: 0 1 380px; margin: 0; font-size: var(--text-lead); line-height: 1.5; color: var(--muted); }
+</style>

@@ -5,7 +5,7 @@ export default defineConfig({
   webServer: {
     command: 'npx astro preview --port 4321 --ignore-lock',
     port: 4321,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
   use: {
     baseURL: 'http://localhost:4321',

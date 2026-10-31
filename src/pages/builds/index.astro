@@ -1,0 +1,89 @@
+---
+import Site from '../../layouts/Site.astro';
+import Ridge from '../../components/Ridge.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import LayerStack from '../../components/LayerStack.astro';
+import { getBuilds, formatDate } from '../../lib/content';
+import { latestPhoto } from '../../lib/buildlog';
+
+const builds = await getBuilds();
+const current = builds.find((b) => b.status === 'In progress');
+const finished = builds.filter((b) => b !== current);
+const photo = current ? latestPhoto(current) : undefined;
+const count = builds.length;
+---
+<Site title="Builds" current="builds" description="Things made with hands as well as code, each told layer by layer.">
+  <PageHeader
+    eyebrow={`${count} ${count === 1 ? 'build' : 'builds'} · hardware, setups and long jobs`}
+    title="Builds"
+    lead="Things made with hands as well as code, each told layer by layer."
+  />
+
+  {current && (
+    <>
+      <Ridge color="var(--layer-2)" variant={1} />
+      <section class="layer-2" aria-labelledby="now-h">
+        <div class="wrap band now">
+          {photo?.photo
+            ? <img class="pic" src={photo.photo} alt={photo.caption || `Latest photo of ${current.title}`} />
+            : <div class="pic ph" role="img" aria-label={`Photo placeholder: ${current.title}`}></div>}
+          <div class="text">
+            <p class="mono eyebrow">Now building · started {formatDate(current.started)} · updated {formatDate(current.updated)}</p>
+            <h2 id="now-h">{current.title}</h2>
+            <p class="summary">{current.summary}</p>
+            <LayerStack layers={current.layers} variant="blocks" />
+            <a class="btn btn-solid" href={`/builds/${current.slug}`}>Read the build log</a>
+          </div>
+        </div>
+      </section>
+    </>
+  )}
+
+  {finished.length > 0 && (
+    <>
+      <Ridge color="var(--layer-3)" variant={2} />
+      <section class="layer-3" aria-labelledby="done-h">
+        <div class="wrap band">
+          <h2 id="done-h" class="done-h">Finished</h2>
+          <ul class="rows">
+            {finished.map((b) => (
+              <li>
+                <a class="row" href={`/builds/${b.slug}`}>
+                  <span class="mono date">{formatDate(b.updated)}</span>
+                  <span class="name"><span class="t">{b.title}</span><span class="l">{b.summary}</span></span>
+                  <span class="mono count">{b.layers.length} layers</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </>
+  )}
+</Site>
+
+<style>
+  .layer-2 { background: var(--layer-2); }
+  .layer-3 { background: var(--layer-3); }
+  .band { padding-block: 64px 88px; }
+  .now { display: flex; flex-wrap: wrap; gap: 48px; align-items: stretch; }
+  .pic { flex: 1 1 420px; min-height: 340px; width: 100%; object-fit: cover; object-position: top; border-radius: var(--radius); }
+  img.pic { max-width: 100%; height: 380px; min-height: 0; }
+  .text { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; }
+  .eyebrow { font-size: var(--text-meta); color: var(--muted); margin: 0 0 14px; }
+  .summary { margin: 14px 0 28px; }
+  .text .btn { align-self: flex-start; margin-top: 32px; }
+  .done-h { margin-bottom: 24px; }
+  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .rows li { border-bottom: 1px solid var(--rule); }
+  .row {
+    text-decoration: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 32px;
+    min-height: 72px; padding: 14px 8px;
+  }
+  .row:hover { background: rgba(230, 223, 208, 0.05); }
+  .date, .count { font-size: var(--text-meta); color: var(--muted); }
+  .date { flex: 0 0 96px; }
+  .name { flex: 1 1 280px; min-width: 0; }
+  .t { display: block; font-family: var(--font-heading); font-weight: 600; font-size: var(--text-h3); letter-spacing: 0.03em; }
+  .l { display: block; font-size: var(--text-small); color: var(--muted); }
+</style>
